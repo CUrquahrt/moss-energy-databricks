@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moss Energy × Databricks — Build every megawatt like a production line</title>
+<meta name="description" content="Prepared for Ravi Ravishankar, SVP & CTO (Solar), Moss. One governed data & AI backbone for Moss Energy — with a working portfolio demo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ground:#F9F7F4; --surface:#FFFFFF; --surface-2:#F1EDE5;
+    --ink:#1B3139; --ink-soft:#4C5D64; --ink-faint:#7A888E;
+    --line:#E2DBD0; --line-strong:#CFC6B8;
+    --accent:#FF3621; --accent-soft:#FFEBE7; --accent-ink:#FFFFFF;
+    --warn:#A85B12; --warn-bg:#FAEFE1; --warn-line:#E7C9A3;
+    --bad:#B42318; --bad-bg:#FDECEA; --bad-line:#F2B8B1;
+    --good:#2E7D5B; --good-bg:#E6F1EA; --good-line:#B9D8C6;
+    --azure:#2E6FB0; --azure-bg:#EAF1F8;
+    --shadow:0 1px 2px rgba(27,49,57,.06), 0 8px 24px rgba(27,49,57,.06);
+    --radius:14px; --maxw:1120px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --ground:#0E1F26; --surface:#16303A; --surface-2:#1C3A45;
+      --ink:#F3EFE8; --ink-soft:#B4C3C8; --ink-faint:#8397A0;
+      --line:#294450; --line-strong:#35545F;
+      --accent:#FF5A44; --accent-soft:#3A211C; --accent-ink:#10222A;
+      --warn:#E6A45A; --warn-bg:#33281A; --warn-line:#5C462C;
+      --bad:#FF8A7A; --bad-bg:#3A1F1C; --bad-line:#6A3530;
+      --good:#74C39A; --good-bg:#1B3329; --good-line:#315145;
+      --azure:#7FB4E8; --azure-bg:#17303F;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --ground:#0E1F26; --surface:#16303A; --surface-2:#1C3A45;
+    --ink:#F3EFE8; --ink-soft:#B4C3C8; --ink-faint:#8397A0;
+    --line:#294450; --line-strong:#35545F;
+    --accent:#FF5A44; --accent-soft:#3A211C; --accent-ink:#10222A;
+    --warn:#E6A45A; --warn-bg:#33281A; --warn-line:#5C462C;
+    --bad:#FF8A7A; --bad-bg:#3A1F1C; --bad-line:#6A3530;
+    --good:#74C39A; --good-bg:#1B3329; --good-line:#315145;
+    --azure:#7FB4E8; --azure-bg:#17303F;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:17px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .eyebrow { font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); }
+  h1,h2,h3,h4 { font-family:"Archivo",system-ui,sans-serif; text-wrap:balance; line-height:1.08; letter-spacing:-0.01em; margin:0; }
+  button { font:inherit; }
+
+  /* top bar */
+  .topbar { position:sticky; top:0; z-index:30; background:color-mix(in srgb,var(--ground) 88%,transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  .topbar .wrap { display:flex; align-items:center; justify-content:space-between; height:58px; gap:16px; }
+  .brand { font-family:"Archivo",sans-serif; font-weight:800; font-size:15px; letter-spacing:.02em; display:flex; gap:10px; align-items:center; white-space:nowrap; }
+  .brand .x { color:var(--accent); } .brand .db { color:var(--ink-soft); font-weight:600; }
+  .nav { display:flex; gap:18px; font-size:13.5px; }
+  .nav a { color:var(--ink-soft); text-decoration:none; } .nav a:hover { color:var(--ink); }
+  .toggle { font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; background:var(--surface); color:var(--ink-soft); border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer; }
+  .toggle:focus-visible, .tab:focus-visible, .chip:focus-visible, .prow:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* hero */
+  .hero { padding:72px 0 44px; }
+  .hero h1 { font-weight:900; font-size:clamp(38px,6vw,66px); letter-spacing:-0.025em; max-width:16ch; margin-top:18px; }
+  .hero h1 .hl { color:var(--accent); }
+  .lede { margin-top:22px; max-width:64ch; font-size:clamp(17px,2.1vw,20px); color:var(--ink-soft); }
+  .lede strong { color:var(--ink); font-weight:600; }
+  .metarow { margin-top:30px; display:flex; flex-wrap:wrap; gap:10px; }
+  .chip-meta { font-family:"IBM Plex Mono",monospace; font-size:12.5px; border:1px solid var(--line); border-radius:999px; padding:8px 15px; color:var(--ink-soft); background:var(--surface); }
+  .chip-meta b { color:var(--ink); font-weight:600; }
+  .cta { display:inline-flex; align-items:center; gap:10px; margin-top:30px; background:var(--accent); color:#fff; text-decoration:none; font-family:"Archivo",sans-serif; font-weight:700; padding:13px 22px; border-radius:999px; }
+  .cta:hover { filter:brightness(1.05); }
+
+  section.block { padding:50px 0; border-top:1px solid var(--line); }
+  .sec-head { margin-bottom:28px; }
+  .sec-head h2 { font-size:clamp(26px,3.6vw,38px); font-weight:800; margin-top:10px; }
+  .sec-head p { color:var(--ink-soft); max-width:68ch; margin:14px 0 0; }
+  .sec-head p strong { color:var(--ink); font-weight:600; }
+
+  /* factory analogy */
+  .analogy { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .acard { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+  .acard .from { font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); }
+  .acard .to { font-family:"Archivo",sans-serif; font-weight:800; font-size:18px; margin-top:8px; }
+  .acard p { margin:8px 0 0; font-size:14.5px; color:var(--ink-soft); }
+  .acard .arrow { color:var(--accent); font-weight:700; }
+
+  /* problem cards */
+  .problems { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .pcard { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+  .pcard .cat { font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600; letter-spacing:.12em; color:var(--warn); text-transform:uppercase; }
+  .pcard h3 { font-size:18px; font-weight:700; margin-top:8px; }
+  .pcard p { margin:8px 0 0; color:var(--ink-soft); font-size:15px; }
+
+  /* ===== DEMO ===== */
+  .demo { background:var(--surface); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow); overflow:hidden; }
+  .demo-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--line); background:var(--surface-2); flex-wrap:wrap; }
+  .demo-title { font-family:"Archivo",sans-serif; font-weight:800; font-size:15px; display:flex; align-items:center; gap:10px; }
+  .live { width:8px; height:8px; border-radius:50%; background:var(--good); box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent); }
+  .sample { font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--warn); border:1px solid var(--warn-line); background:var(--warn-bg); border-radius:6px; padding:3px 8px; }
+  .tabs { display:flex; gap:4px; padding:10px 14px 0; border-bottom:1px solid var(--line); overflow-x:auto; }
+  .tab { background:none; border:none; border-bottom:2px solid transparent; padding:10px 14px; cursor:pointer; color:var(--ink-soft); font-weight:600; font-size:14.5px; white-space:nowrap; }
+  .tab[aria-selected="true"] { color:var(--ink); border-bottom-color:var(--accent); }
+  .tab .n { font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--accent); margin-right:6px; }
+  .panel { padding:22px; } .panel[hidden] { display:none; }
+  .panel-intro { color:var(--ink-soft); font-size:15px; margin:0 0 18px; max-width:80ch; }
+  .panel-intro b { color:var(--ink); }
+
+  .kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  .kpi { border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--ground); }
+  .kpi .l { font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  .kpi .v { font-family:"Archivo",sans-serif; font-weight:800; font-size:28px; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .kpi .s { font-size:12.5px; color:var(--ink-soft); }
+
+  .split { display:grid; grid-template-columns:1.05fr 1fr; gap:18px; align-items:start; }
+  table.ptable { width:100%; border-collapse:collapse; font-size:14px; }
+  .ptable th { text-align:left; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:500; padding:8px 8px; border-bottom:1px solid var(--line); }
+  .ptable td { padding:10px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+  .ptable th.r, .ptable td.r { text-align:right; }
+  .prow { cursor:pointer; }
+  .prow:hover td { background:color-mix(in srgb,var(--ink) 4%,transparent); }
+  .prow.sel td { background:var(--accent-soft); }
+  .pname { font-weight:600; } .psub { font-size:12px; color:var(--ink-faint); }
+  .badge { display:inline-flex; align-items:center; gap:5px; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600; border-radius:6px; padding:3px 7px; border:1px solid; white-space:nowrap; }
+  .badge.hi { color:var(--bad); background:var(--bad-bg); border-color:var(--bad-line); }
+  .badge.md { color:var(--warn); background:var(--warn-bg); border-color:var(--warn-line); }
+  .badge.ok { color:var(--good); background:var(--good-bg); border-color:var(--good-line); }
+
+  .detail { border:1px solid var(--line); border-radius:14px; padding:16px; background:var(--ground); }
+  .detail h3 { font-size:19px; }
+  .detail .dsub { font-size:13px; color:var(--ink-soft); margin-top:2px; }
+  .chart-title { font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:16px 0 6px; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
+  .legend i { display:inline-block; width:18px; height:0; border-top:2px solid; vertical-align:middle; margin-right:6px; }
+  svg text { font-family:"IBM Plex Mono",monospace; }
+  .chartbox { position:relative; }
+  .tip { position:absolute; pointer-events:none; background:var(--ink); color:var(--ground); font-size:12px; padding:7px 9px; border-radius:8px; white-space:nowrap; transform:translate(-50%,-115%); opacity:0; transition:opacity .1s; z-index:5; font-variant-numeric:tabular-nums; }
+  .tip b { font-weight:600; }
+  .drivers { display:flex; flex-direction:column; gap:7px; margin-top:4px; }
+  .drv { display:grid; grid-template-columns:130px 1fr 52px; gap:10px; align-items:center; font-size:13px; }
+  .drv .track { height:10px; background:color-mix(in srgb,var(--ink) 7%,transparent); border-radius:4px; overflow:hidden; }
+  .drv .fill { height:100%; background:var(--accent); border-radius:0 4px 4px 0; }
+  .drv .dv { text-align:right; font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; }
+  .reco { margin-top:14px; border-left:3px solid var(--accent); background:var(--surface); padding:10px 13px; border-radius:0 10px 10px 0; font-size:14px; }
+  .reco .rl { font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); }
+
+  /* SPC */
+  .ctrls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .ctrls label { font-size:13px; color:var(--ink-soft); }
+  select { font:inherit; font-size:14px; padding:7px 10px; border-radius:9px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink); }
+  .seg { display:inline-flex; border:1px solid var(--line-strong); border-radius:9px; overflow:hidden; }
+  .seg button { border:none; background:var(--surface); color:var(--ink-soft); padding:7px 13px; cursor:pointer; font-size:13.5px; border-right:1px solid var(--line); }
+  .seg button:last-child { border-right:none; }
+  .seg button[aria-pressed="true"] { background:var(--ink); color:var(--ground); }
+  .spc-flags { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .flag { border:1px solid var(--line); border-radius:10px; padding:11px 13px; font-size:13.5px; background:var(--ground); }
+  .flag .fl { font-family:"IBM Plex Mono",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); }
+  .flag .fv { font-family:"Archivo",sans-serif; font-weight:800; font-size:20px; margin-top:2px; }
+
+  /* Genie */
+  .genie { display:grid; grid-template-columns:1fr; gap:14px; }
+  .askbox { display:flex; gap:10px; }
+  .askbox input { flex:1; font:inherit; font-size:15.5px; padding:12px 14px; border-radius:12px; border:1px solid var(--line-strong); background:var(--ground); color:var(--ink); }
+  .askbox input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  .askbox button { background:var(--accent); color:#fff; border:none; border-radius:12px; padding:0 20px; font-weight:700; cursor:pointer; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { background:var(--surface); border:1px solid var(--line-strong); color:var(--ink); border-radius:999px; padding:7px 13px; font-size:13.5px; cursor:pointer; }
+  .chip:hover { border-color:var(--accent); }
+  .answer { border:1px solid var(--line); border-radius:14px; padding:18px; background:var(--ground); min-height:120px; }
+  .answer .q { font-family:"Archivo",sans-serif; font-weight:700; font-size:17px; }
+  .answer .nar { margin:10px 0 12px; color:var(--ink-soft); font-size:15px; }
+  .answer .nar b { color:var(--ink); }
+  details.sql { margin-top:12px; }
+  details.sql summary { cursor:pointer; font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--ink-soft); }
+  details.sql pre { background:var(--ink); color:#E9F1F3; padding:12px 14px; border-radius:10px; overflow-x:auto; font-size:12.5px; line-height:1.5; margin:8px 0 0; }
+  .thinking { display:flex; gap:8px; align-items:center; color:var(--ink-faint); font-size:14px; }
+  .dots span { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:3px; animation:b 1s infinite; }
+  .dots span:nth-child(2){animation-delay:.15s} .dots span:nth-child(3){animation-delay:.3s}
+  @keyframes b { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+  .src-note { font-size:12px; color:var(--ink-faint); margin-top:10px; font-family:"IBM Plex Mono",monospace; }
+
+  /* What-if */
+  .wi { display:grid; grid-template-columns:1fr 1.1fr; gap:22px; align-items:start; }
+  .slider { margin-bottom:18px; }
+  .slider .sl { display:flex; justify-content:space-between; font-size:14px; }
+  .slider .sl b { font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; }
+  .slider .sh { font-size:12.5px; color:var(--ink-faint); }
+  input[type=range] { width:100%; accent-color:var(--accent); margin-top:6px; }
+  .wi-out { border:1px solid var(--line); border-radius:14px; padding:18px; background:var(--ground); }
+  .wi-big { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .wi-big .kpi { background:var(--surface); }
+  .delta { font-size:13px; margin-top:2px; font-family:"IBM Plex Mono",monospace; }
+  .delta.good { color:var(--good); } .delta.bad { color:var(--bad); }
+  .wi-note { font-size:13px; color:var(--ink-soft); margin-top:12px; }
+
+  /* mapping */
+  .map { display:flex; flex-direction:column; gap:12px; }
+  .mrow { display:grid; grid-template-columns:1fr 40px 1.25fr; align-items:stretch; }
+  .mcell { border-radius:var(--radius); padding:16px 18px; }
+  .mcell.p { background:var(--warn-bg); border:1px solid var(--warn-line); }
+  .mcell.s { background:var(--good-bg); border:1px solid var(--good-line); }
+  .mcell .t { font-family:"Archivo",sans-serif; font-weight:700; font-size:16px; }
+  .mcell .x { margin:5px 0 0; font-size:14px; color:var(--ink-soft); }
+  .mcell .x b { color:var(--ink); font-weight:600; }
+  .marrow { display:grid; place-items:center; color:var(--accent); font-size:22px; font-weight:700; }
+
+  /* architecture */
+  .arch { background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:22px; box-shadow:var(--shadow); }
+  .azure-frame { border:1.5px dashed var(--azure); border-radius:16px; padding:18px; background:var(--azure-bg); }
+  .azure-tag { font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--azure); margin-bottom:14px; }
+  .lanes { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .lane { background:var(--ground); border:1px solid var(--line); border-radius:12px; padding:13px 15px; }
+  .lane.new { border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--line)); background:var(--accent-soft); }
+  .lane .lt { font-family:"Archivo",sans-serif; font-weight:800; font-size:15px; }
+  .lane .tag { font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; border-radius:5px; padding:2px 7px; margin-left:6px; vertical-align:2px; }
+  .lane .tag.live2 { color:var(--good); border:1px solid var(--good-line); background:var(--good-bg); }
+  .lane .tag.add { color:var(--accent); border:1px solid color-mix(in srgb,var(--accent) 45%,transparent); }
+  .srcs { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+  .src { font-family:"IBM Plex Mono",monospace; font-size:11.5px; background:var(--surface); border:1px solid var(--line-strong); border-radius:7px; padding:4px 9px; }
+  .down { text-align:center; color:var(--ink-faint); font-family:"IBM Plex Mono",monospace; font-size:11.5px; padding:8px 0; }
+  .core { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .core .lt { font-family:"Archivo",sans-serif; font-weight:800; font-size:15px; }
+  .med { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
+  .med div { border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--ink-soft); background:var(--ground); }
+  .med b { display:block; font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink); }
+  .uc { margin-top:10px; background:var(--good-bg); border:1px solid var(--good-line); border-radius:10px; padding:10px 13px; font-size:13.5px; }
+  .uc b { color:var(--good); }
+  .consume { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .cons { background:var(--ground); border:1px solid var(--line); border-radius:10px; padding:11px 12px; }
+  .cons .ct { font-family:"Archivo",sans-serif; font-weight:700; font-size:14px; }
+  .cons p { margin:3px 0 0; font-size:12.5px; color:var(--ink-soft); }
+
+  /* proof */
+  .proof { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .prf { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; }
+  .prf .who { font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); font-weight:600; }
+  .prf .big { font-family:"Archivo",sans-serif; font-weight:900; font-size:30px; margin-top:8px; }
+  .prf p { margin:6px 0 0; font-size:14.5px; color:var(--ink-soft); }
+  .prf .so { margin-top:10px; font-size:13.5px; color:var(--ink); border-top:1px solid var(--line); padding-top:10px; }
+
+  /* ask */
+  .ask { background:#1B3139; color:#F9F7F4; border-radius:20px; padding:40px clamp(24px,5vw,52px); }
+  .ask h2 { color:#fff; font-size:clamp(26px,3.8vw,40px); font-weight:900; margin-top:12px; }
+  .ask p { color:rgba(255,255,255,.78); max-width:62ch; }
+  .ask-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:26px; }
+  .ask-item { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:12px; padding:18px; }
+  .ask-item .n { font-family:"IBM Plex Mono",monospace; font-size:12px; color:#FF5A44; font-weight:600; letter-spacing:.1em; }
+  .ask-item h4 { margin:8px 0 6px; font-size:17px; color:#fff; }
+  .ask-item p { margin:0; font-size:14px; color:rgba(255,255,255,.72); }
+  .ask .closer { margin-top:26px; padding-top:20px; border-top:1px solid rgba(255,255,255,.14); font-size:17px; }
+  .ask .closer b { color:#FF5A44; }
+
+  footer { padding:28px 0 56px; color:var(--ink-faint); font-size:13px; }
+  footer .wrap { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+
+
+  /* ===== Genie video ===== */
+  .gv-grid { display:grid; grid-template-columns:1.75fr 1fr; gap:18px; align-items:start; }
+  .player { background:#0B1A20; border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--shadow); color:#E9F1F3; }
+  .screen { position:relative; height:540px; display:grid; grid-template-columns:190px 1fr; font-size:13.5px; overflow:hidden; }
+  .g-side { background:#10252D; border-right:1px solid #22404B; padding:14px 12px; display:flex; flex-direction:column; gap:12px; }
+  .g-logo { font-family:"Archivo",sans-serif; font-weight:800; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .g-logo .spark { width:20px; height:20px; border-radius:6px; background:linear-gradient(135deg,#FF3621,#FF8A4C); display:grid; place-items:center; font-size:12px; color:#fff; }
+  .g-lbl { font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:#7F97A0; }
+  .g-space { background:#16323C; border:1px solid #2A4955; border-radius:9px; padding:8px 10px; font-weight:600; font-size:12.5px; }
+  .g-tbl { font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:#B4C3C8; padding:4px 0 4px 8px; border-left:2px solid #2A4955; transition:border-color .3s,color .3s; }
+  .g-tbl.hot { border-left-color:#FF5A44; color:#fff; }
+  .g-uc { margin-top:auto; font-size:10.5px; color:#74C39A; font-family:"IBM Plex Mono",monospace; }
+  .g-main { display:flex; flex-direction:column; min-width:0; }
+  .g-top { padding:10px 16px; border-bottom:1px solid #22404B; display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#9FB2B9; }
+  .g-chat { flex:1; overflow:hidden; padding:14px 16px; display:flex; flex-direction:column; gap:10px; justify-content:flex-end; }
+  .g-msg { max-width:92%; animation:gin .35s ease both; }
+  @keyframes gin { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+  .g-user { align-self:flex-end; background:#FF3621; color:#fff; border-radius:12px 12px 2px 12px; padding:8px 12px; font-weight:500; }
+  .g-bot { align-self:flex-start; background:#16323C; border:1px solid #2A4955; border-radius:12px 12px 12px 2px; padding:10px 12px; width:92%; }
+  .g-step { font-family:"IBM Plex Mono",monospace; font-size:11px; color:#9FB2B9; display:flex; gap:7px; align-items:center; }
+  .g-step .ok { color:#74C39A; }
+  .g-step .dots { flex:0 0 auto; white-space:nowrap; }
+  .g-sql { font-family:"IBM Plex Mono",monospace; font-size:10.5px; background:#0B1A20; border-radius:7px; padding:7px 9px; margin-top:6px; white-space:pre; color:#CFE3E8; overflow:hidden; }
+  .g-nar { margin-top:7px; line-height:1.45; }
+  .g-nar b { color:#fff; }
+  .g-bars { margin-top:8px; display:flex; flex-direction:column; gap:5px; }
+  .g-bar { display:grid; grid-template-columns:110px 1fr 40px; gap:8px; align-items:center; font-size:11.5px; }
+  .g-bar .tr { height:9px; background:#22404B; border-radius:4px; overflow:hidden; }
+  .g-bar .fi { height:100%; width:0; background:#FF5A44; border-radius:0 4px 4px 0; transition:width .7s ease; }
+  .g-bar .v { text-align:right; font-family:"IBM Plex Mono",monospace; }
+  .g-input { margin:0 16px 14px; border:1px solid #2A4955; background:#10252D; border-radius:10px; padding:9px 12px; color:#9FB2B9; min-height:38px; display:flex; align-items:center; }
+  .g-input .caret { display:inline-block; width:1.5px; height:15px; background:#FF5A44; margin-left:1px; animation:blink 1s steps(1) infinite; vertical-align:-2px; }
+  @keyframes blink { 50% { opacity:0; } }
+  .g-input.typing { color:#fff; border-color:#FF5A44; }
+  .g-card { position:absolute; inset:0; display:grid; place-items:center; text-align:center; background:radial-gradient(ellipse at 30% 20%,#1E4250,#0B1A20 70%); padding:30px; z-index:3; transition:opacity .4s; }
+  .g-card[hidden] { display:none; }
+  .g-card h3 { font-size:clamp(22px,3vw,32px); color:#fff; }
+  .g-card p { color:#B4C3C8; margin:10px auto 0; max-width:46ch; font-size:15px; }
+  .g-card .e { font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:#FF5A44; margin-bottom:12px; }
+  .bigplay { margin-top:18px; width:66px; height:66px; border-radius:50%; border:none; background:#FF3621; color:#fff; font-size:24px; cursor:pointer; box-shadow:0 8px 30px rgba(255,54,33,.4); }
+  .bigplay:focus-visible, .pc button:focus-visible, .chap:focus-visible { outline:2px solid #FF5A44; outline-offset:2px; }
+  .caption { background:#0B1A20; border-top:1px solid #22404B; color:#fff; padding:9px 16px; font-size:14px; text-align:center; min-height:41px; }
+  .caption::before { content:'CC'; font-family:"IBM Plex Mono",monospace; font-size:10px; border:1px solid #4C6670; color:#9FB2B9; border-radius:3px; padding:0 4px; margin-right:8px; vertical-align:1px; }
+  .caption:empty::before { content:none; }
+  .pc { display:flex; align-items:center; gap:10px; padding:10px 14px; border-top:1px solid #22404B; background:#10252D; }
+  .pc button { background:none; border:1px solid #2A4955; color:#E9F1F3; border-radius:8px; padding:5px 10px; cursor:pointer; font-size:13px; }
+  .pbar { flex:1; position:relative; height:6px; background:#22404B; border-radius:3px; cursor:pointer; }
+  .pbar .pf { position:absolute; left:0; top:0; bottom:0; background:#FF3621; border-radius:3px; width:0; }
+  .pbar .tick { position:absolute; top:-3px; width:2px; height:12px; background:#7F97A0; }
+  .ptime { font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:#9FB2B9; min-width:74px; text-align:right; }
+  .chaps { display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 12px; background:#10252D; }
+  .chap { background:none; border:1px solid #2A4955; color:#B4C3C8; border-radius:999px; padding:4px 10px; font-size:12px; cursor:pointer; }
+  .chap.on { border-color:#FF5A44; color:#fff; }
+  .gv-side { display:flex; flex-direction:column; gap:14px; }
+  .gv-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px; }
+  .gv-card h4 { font-size:16px; } .gv-card p { font-size:14px; color:var(--ink-soft); margin:6px 0 0; }
+  .yt { display:block; position:relative; border-radius:12px; overflow:hidden; margin-top:12px; aspect-ratio:16/9; background:#000; }
+  .yt img { width:100%; height:100%; object-fit:cover; opacity:.85; display:block; }
+  .yt .yp { position:absolute; inset:0; display:grid; place-items:center; }
+  .yt .yp span { width:58px; height:40px; border-radius:10px; background:#FF0033; color:#fff; display:grid; place-items:center; font-size:18px; }
+  .gv-list { margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--ink-soft); }
+  .gv-list li { margin:4px 0; }
+  @media (max-width: 900px) { .gv-grid { grid-template-columns:1fr; } .screen { grid-template-columns:1fr; height:520px; } .g-side { display:none; } }
+  @media (max-width: 900px) {
+    .analogy { grid-template-columns:1fr 1fr; }
+    .problems, .proof, .ask-grid, .spc-flags { grid-template-columns:1fr; }
+    .split, .wi, .lanes { grid-template-columns:1fr; }
+    .kpis, .consume { grid-template-columns:1fr 1fr; }
+    .mrow { grid-template-columns:1fr; } .marrow { transform:rotate(90deg); padding:2px 0; }
+    .nav { display:none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+  @media print { .topbar { position:static; } .toggle,.cta { display:none; } .panel[hidden] { display:block; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">Moss Energy <span class="x">×</span> <span class="db">Databricks</span></div>
+    <nav class="nav" aria-label="Sections">
+      <a href="#why">Why now</a><a href="#demo">Live demo</a><a href="#genie-video">Genie video</a><a href="#how">How it works</a><a href="#proof">Proof</a><a href="#next">Next step</a>
+    </nav>
+    <button class="toggle" id="themeBtn" aria-label="Switch color theme">Theme</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Prepared for Ravi Ravishankar · SVP &amp; CTO, Solar · Moss</div>
+      <h1>Build every megawatt <span class="hl">like a production line.</span></h1>
+      <p class="lede">A utility-scale solar or BESS site is a factory that gets built once, in the field, against a fixed COD. The levers you'd pull in a plant (takt, yield, statistical process control) all depend on <strong>one trusted, live view of the work</strong>. Moss already runs Databricks on the construction side. This page shows what <strong>the same platform does for Moss Energy</strong>, and has a working demo you can click through.</p>
+      <div class="metarow">
+        <span class="chip-meta"><b>Already live at Moss:</b> Procore → Delta Lake</span>
+        <span class="chip-meta"><b>2</b> Azure Databricks workspaces</span>
+        <span class="chip-meta"><b>Unity Catalog</b> governance enforced</span>
+      </div>
+      <a class="cta" href="#demo">Open the demo ↓</a>
+    </div>
+  </section>
+
+  <section class="block" id="why">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">The idea</div>
+        <h2>The manufacturing playbook, applied to a solar build</h2>
+        <p>The disciplines that run a high-mix electronics line map directly onto an EPC portfolio. What usually fails is the data underneath: <strong>schedule, procurement, field production, and quality live in separate systems</strong>, so variance shows up in the weekly report instead of on the day it happens.</p>
+      </div>
+      <div class="analogy">
+        <div class="acard"><div class="from">On the line</div><div class="to">Takt time <span class="arrow">→</span> install rate</div><p>Piles, tracker rows, and modules per crew-day against plan, for every block on every site.</p></div>
+        <div class="acard"><div class="from">On the line</div><div class="to">SPC <span class="arrow">→</span> crew control charts</div><p>Catch a crew or a pile rig drifting out of control in days, not at the monthly schedule update.</p></div>
+        <div class="acard"><div class="from">On the line</div><div class="to">MRP <span class="arrow">→</span> module &amp; tracker flow</div><p>Tie POs, port and rail ETAs, and laydown inventory to the install sequence that consumes them.</p></div>
+        <div class="acard"><div class="from">On the line</div><div class="to">First-pass yield <span class="arrow">→</span> commissioning</div><p>Punch-list, IV-curve, and torque QA data linked back to the crew and block that produced it.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">What it costs to wait</div>
+        <h2>Schedule variance is the most expensive number in the portfolio</h2>
+        <p>Every slipped COD day carries liquidated damages, extended general conditions, and deferred revenue for the owner. The earlier variance is visible, the cheaper it is to fix. Our illustrative model for Moss puts the <strong>cost of delaying this foundation at roughly $1.3M per quarter</strong>, and schedule compression is the largest lever.</p>
+      </div>
+      <div class="problems">
+        <div class="pcard"><div class="cat">Schedule</div><h3>P6 says on track, the field says otherwise</h3><p>Percent-complete is reported weekly and by hand, so slip compounds for weeks before anyone acts on it.</p></div>
+        <div class="pcard"><div class="cat">Supply chain</div><h3>Module and tracker timing drives the critical path</h3><p>Tariff, FEOC, and port exposure changes delivery dates, but those changes never reach the install sequence automatically.</p></div>
+        <div class="pcard"><div class="cat">Field production</div><h3>Ground conditions show up as lost crew-days</h3><p>Pile refusal, caliche, and weather appear as productivity loss with no root cause attached.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DEMO ===================== -->
+  <section class="block" id="demo">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Live demo</div>
+        <h2>Moss Energy Portfolio Command Center</h2>
+        <p>This is a working prototype of what we'd build together in the POC. It runs on a <strong>synthetic eight-project portfolio</strong> (fictional project names, illustrative numbers) so it can be shared safely. In the real build, every number comes from your governed tables in Unity Catalog.</p>
+      </div>
+
+      <div class="demo">
+        <div class="demo-bar">
+          <div class="demo-title"><span class="live" aria-hidden="true"></span>Portfolio Command Center · Moss Energy</div>
+          <span class="sample">Sample data · illustrative</span>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Demo views">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="p-port" id="t-port"><span class="n">01</span>Portfolio risk</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="p-spc" id="t-spc" tabindex="-1"><span class="n">02</span>Crew SPC</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="p-genie" id="t-genie" tabindex="-1"><span class="n">03</span>Ask Genie</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="p-wi" id="t-wi" tabindex="-1"><span class="n">04</span>What-if recovery</button>
+        </div>
+
+        <!-- 01 Portfolio -->
+        <div class="panel" role="tabpanel" id="p-port" aria-labelledby="t-port">
+          <p class="panel-intro">A model trained on schedule, procurement, and field-production history <b>forecasts each project's COD</b> and breaks the slip down by cause. Click a project to see its S-curve.</p>
+          <div class="kpis" id="kpis"></div>
+          <div class="split">
+            <div style="overflow-x:auto">
+              <table class="ptable" id="ptable">
+                <thead><tr><th>Project</th><th class="r">MWac</th><th class="r">SPI</th><th class="r">COD forecast</th><th>Risk</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="detail" id="detail" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- 02 SPC -->
+        <div class="panel" role="tabpanel" id="p-spc" aria-labelledby="t-spc" hidden>
+          <p class="panel-intro">An <b>individuals control chart</b> of piles driven per crew-day. Limits come from the first 20 days. Points beyond ±3σ, or 7 or more days in a row below the mean, are flagged automatically and routed to the superintendent.</p>
+          <div class="ctrls">
+            <label for="spcProj">Project</label><select id="spcProj"></select>
+            <div class="seg" role="group" aria-label="Crew" id="crewSeg"></div>
+          </div>
+          <div class="chartbox" id="spcBox"></div>
+          <div class="spc-flags" id="spcFlags"></div>
+        </div>
+
+        <!-- 03 Genie -->
+        <div class="panel" role="tabpanel" id="p-genie" aria-labelledby="t-genie" hidden>
+          <p class="panel-intro"><b>AI/BI Genie</b> lets your PMs, superintendents, and executives ask questions in plain English. It answers with governed SQL over Unity Catalog, so everyone gets the same number. Try a suggestion or type your own, or <a href="#genie-video" style="color:var(--accent)">watch the one-minute walkthrough ↓</a></p>
+          <div class="genie">
+            <form class="askbox" id="askForm" autocomplete="off">
+              <input id="askIn" type="text" placeholder="e.g. Which projects are most at risk of missing COD?" aria-label="Ask a question about the portfolio">
+              <button type="submit">Ask</button>
+            </form>
+            <div class="chips" id="chips"></div>
+            <div class="answer" id="answer" aria-live="polite"><div class="nar">Pick a question above to see Genie answer it with the SQL it generated.</div></div>
+          </div>
+        </div>
+
+        <!-- 04 What-if -->
+        <div class="panel" role="tabpanel" id="p-wi" aria-labelledby="t-wi" hidden>
+          <p class="panel-intro">Test a recovery plan before you commit crews and cash. Move the levers to see how the <b>forecast COD and LD exposure</b> respond. Uses the same forecast model as tab 01.</p>
+          <div class="wi">
+            <div>
+              <div class="ctrls"><label for="wiProj">Project</label><select id="wiProj"></select></div>
+              <div class="slider"><div class="sl"><span>Add pile / install crews</span><b id="vCrews">0</b></div><input type="range" id="sCrews" min="0" max="4" step="1" value="0"><div class="sh">Each added crew lifts the run-rate about 11%, with diminishing returns from mobilization.</div></div>
+              <div class="slider"><div class="sl"><span>Additional module delivery delay</span><b id="vMod">0 d</b></div><input type="range" id="sMod" min="0" max="45" step="1" value="0"><div class="sh">Re-sequencing absorbs about 40% of any added delivery slip.</div></div>
+              <div class="slider"><div class="sl"><span>Weather days remaining (vs. baseline)</span><b id="vWx">0 d</b></div><input type="range" id="sWx" min="-5" max="20" step="1" value="0"><div class="sh">Pulled from the NOAA seasonal outlook in production.</div></div>
+              <div class="slider"><div class="sl"><span>Run a 6-day week</span><b id="vSix">Off</b></div><input type="range" id="sSix" min="0" max="1" step="1" value="0"><div class="sh">Adds about 9% throughput, at an overtime premium.</div></div>
+            </div>
+            <div class="wi-out" aria-live="polite">
+              <div class="wi-big" id="wiBig"></div>
+              <div class="chart-title">COD slip: baseline vs. this plan (days)</div>
+              <div class="chartbox" id="wiChart"></div>
+              <div class="wi-note" id="wiNote"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="src-note">Illustrative only: synthetic projects, a simplified forecast model, and an assumed LD rate of $250 per MWac per day. Your contracts, schedules, and history replace all of this in the POC.</p>
+    </div>
+  </section>
+
+
+  <section class="block" id="genie-video">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Watch · under a minute</div>
+        <h2>Genie, asked the questions Moss Energy would ask</h2>
+        <p>A short walkthrough of a superintendent and a CTO talking to their portfolio in plain English. It uses the same sample data as the demo above. Press play, or jump to any chapter.</p>
+      </div>
+      <div class="gv-grid">
+        <div class="player" id="player">
+          <div class="screen" id="screen">
+            <aside class="g-side" aria-hidden="true">
+              <div class="g-logo"><span class="spark">✦</span>Genie</div>
+              <div><div class="g-lbl">Space</div><div class="g-space">Moss Energy · Portfolio</div></div>
+              <div><div class="g-lbl" style="margin-bottom:6px">Tables · Unity Catalog</div>
+                <div class="g-tbl" data-t="cod">gold.project_cod_forecast</div>
+                <div class="g-tbl" data-t="drv">gold.delay_attribution</div>
+                <div class="g-tbl" data-t="shp">gold.shipments</div>
+                <div class="g-tbl" data-t="crew">gold.crew_productivity</div>
+                <div class="g-tbl" data-t="ct">gold.contract_terms</div>
+              </div>
+              <div class="g-uc">● Governed · row-level security on</div>
+            </aside>
+            <div class="g-main">
+              <div class="g-top"><span>moss_energy · Azure Databricks</span><span class="mono">Sample data</span></div>
+              <div class="g-chat" id="gchat" aria-live="polite"></div>
+              <div class="g-input" id="ginput"><span id="gtext">Ask a question…</span></div>
+            </div>
+            <div class="g-card" id="gcard">
+              <div>
+                <div class="e">Databricks AI/BI Genie</div>
+                <h3>Ask your portfolio anything.</h3>
+                <p>Plain-English questions in, governed answers out. Built on Unity Catalog.</p>
+                <button class="bigplay" id="bigplay" aria-label="Play the Genie walkthrough">▶</button>
+              </div>
+            </div>
+          </div>
+          <div class="caption" id="gcap" aria-live="polite"></div>
+          <div class="pc">
+            <button id="pp" aria-label="Play">▶ Play</button>
+            <button id="rp" aria-label="Replay from start">↺</button>
+            <div class="pbar" id="pbar" role="slider" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="pf" id="pf"></div></div>
+            <span class="ptime" id="ptime">0:00 / 0:00</span>
+          </div>
+          <div class="chaps" id="chaps"></div>
+        </div>
+        <div class="gv-side">
+          <div class="gv-card">
+            <h4>What you just saw</h4>
+            <ul class="gv-list">
+              <li>Questions in plain English. No SQL, no ticket to the data team.</li>
+              <li>Genie shows the tables and the SQL it used, so every answer can be checked.</li>
+              <li>Follow-up questions keep their context ("why is <i>that one</i> late?").</li>
+              <li>Unity Catalog permissions apply, so a PM sees only their own projects.</li>
+            </ul>
+          </div>
+          <div class="gv-card">
+            <h4>Prefer the real product?</h4>
+            <p>The official Databricks end-to-end demo of AI/BI Dashboards and Genie.</p>
+            <a class="yt" href="https://www.youtube.com/watch?v=Tc3WqbV7fKA" target="_blank" rel="noopener" aria-label="Watch the Databricks AI/BI Dashboards and Genie end-to-end demo on YouTube">
+              <img src="https://i.ytimg.com/vi/Tc3WqbV7fKA/hqdefault.jpg" alt="" loading="lazy">
+              <span class="yp"><span>▶</span></span>
+            </a>
+            <p class="mono" style="font-size:12px;margin-top:8px">YouTube · Databricks · "AI/BI Dashboards and Genie end-to-end demo"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">How it works</div>
+        <h2>Each piece of the demo maps to a Databricks capability</h2>
+        <p>None of this is a new tool for your team to adopt. It runs on the platform Moss already has. We <strong>extend it; we don't rebuild it.</strong></p>
+      </div>
+      <div class="map">
+        <div class="mrow"><div class="mcell p"><div class="t">Data scattered across P6, Procore, ERP, and the field</div><p class="x">Every report starts with someone exporting and reconciling files.</p></div><div class="marrow">→</div><div class="mcell s"><div class="t">Lakeflow Connect + Declarative Pipelines</div><p class="x">Managed ingestion from <b>Procore (already live)</b>, Primavera P6, ERP/procurement, drone and survey data, and SCADA/telemetry, landed as bronze → silver → gold Delta tables.</p></div></div>
+        <div class="mrow"><div class="mcell p"><div class="t">"Whose number is right?"</div><p class="x">CM and Energy each define percent-complete and cost differently.</p></div><div class="marrow">→</div><div class="mcell s"><div class="t">Unity Catalog</div><p class="x">One governed definition of each metric across construction and Energy, with lineage, row-level security per project and owner, and audit. <b>Already enforced at Moss.</b></p></div></div>
+        <div class="mrow"><div class="mcell p"><div class="t">Slip is found after it happens</div><p class="x">Forecasting is a spreadsheet exercise done once a month.</p></div><div class="marrow">→</div><div class="mcell s"><div class="t">Mosaic AI · ML + MLflow</div><p class="x">COD-forecast and delay-driver models (tab 01), SPC anomaly detection (tab 02), and the what-if engine (tab 04), trained, versioned, and served on your own data science team's workspace.</p></div></div>
+        <div class="mrow"><div class="mcell p"><div class="t">Executives wait on analysts for answers</div><p class="x">Every new question becomes a ticket for the data team.</p></div><div class="marrow">→</div><div class="mcell s"><div class="t">AI/BI Genie + Dashboards</div><p class="x">Natural-language questions over governed tables (tab 03). Power BI and your existing Fabric instance keep working on top of the same gold layer.</p></div></div>
+        <div class="mrow"><div class="mcell p"><div class="t">Field teams can't search specs, RFIs, or submittals</div><p class="x">Answers sit in thousands of PDFs and drawings.</p></div><div class="marrow">→</div><div class="mcell s"><div class="t">Agent Bricks + Databricks Apps</div><p class="x">A field assistant grounded in project documents, and this Command Center shipped as a secure internal app, all inside your Azure tenant.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Target architecture</div>
+        <h2>One Unity Catalog across Construction and Energy</h2>
+      </div>
+      <div class="arch">
+        <div class="azure-frame">
+          <div class="azure-tag">◆ Moss Azure tenant · Azure Databricks</div>
+          <div class="lanes">
+            <div class="lane"><div class="lt">Construction (CM) <span class="tag live2">Live today</span></div><div class="srcs"><span class="src">Procore</span><span class="src">Delta Lake pipelines</span><span class="src">dev-001 / dev-002</span><span class="src">Data science team</span></div></div>
+            <div class="lane new"><div class="lt">Moss Energy (Solar / BESS) <span class="tag add">Add in POC</span></div><div class="srcs"><span class="src">Primavera P6</span><span class="src">Procurement / ERP</span><span class="src">Logistics ETAs</span><span class="src">Field production</span><span class="src">QA / commissioning</span><span class="src">Weather</span></div></div>
+          </div>
+          <div class="down">↓ Lakeflow Connect · Declarative Pipelines ↓</div>
+          <div class="core">
+            <div class="lt">Lakehouse on Delta</div>
+            <div class="med">
+              <div><b>Bronze</b>Raw schedule, PO, telemetry, and production feeds</div>
+              <div><b>Silver</b>Conformed project, block, crew, and asset model</div>
+              <div><b>Gold</b>SPI/CPI, install rates, COD forecast, LD exposure</div>
+            </div>
+            <div class="uc"><b>Unity Catalog:</b> shared metric definitions · lineage · per-project and owner access · audit</div>
+          </div>
+          <div class="down">↓ serve ↓</div>
+          <div class="consume">
+            <div class="cons"><div class="ct">Mosaic AI</div><p>Forecast, SPC, what-if</p></div>
+            <div class="cons"><div class="ct">Genie</div><p>Ask in plain English</p></div>
+            <div class="cons"><div class="ct">Databricks Apps</div><p>Command Center, field app</p></div>
+            <div class="cons"><div class="ct">Power BI / Fabric</div><p>Existing reports, now on gold</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="proof">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="eyebrow">Proof</div>
+        <h2>Asset-heavy operators already run this way on Databricks</h2>
+      </div>
+      <div class="proof">
+        <div class="prf"><div class="who">Shell</div><div class="big">10,000+</div><p>simulations run on Databricks, with 800+ citizen data scientists and 100+ AI applications in production.</p><div class="so"><b>For Moss Energy:</b> the same scale of what-if modeling across every site, not just the flagship.</div></div>
+        <div class="prf"><div class="who">Rolls-Royce</div><div class="big">1,000+</div><p>engines monitored live with IoT data and predictive maintenance on the lakehouse.</p><div class="so"><b>For Moss Energy:</b> fleet-style monitoring of rigs, trackers, and BESS commissioning telemetry.</div></div>
+        <div class="prf"><div class="who">Moss, today</div><div class="big">Already live</div><p>Procore data flows into Delta Lake under Unity Catalog, with an active data science team on two Azure workspaces.</p><div class="so"><b>For Moss Energy:</b> the foundation, security review, and skills are already in place. Energy is a new set of sources, not a new platform.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="next">
+    <div class="wrap">
+      <div class="ask">
+        <div class="eyebrow" style="color:#FF5A44">The ask</div>
+        <h2>A 60-minute working session, then a 4–6 week POC on one live site</h2>
+        <p>We'd bring the Databricks solar/EPC team and work through which project, which sources, and what success looks like to you. The POC ends with this Command Center running on your real data.</p>
+        <div class="ask-grid">
+          <div class="ask-item"><div class="n">WEEKS 1–2</div><h4>Connect &amp; model</h4><p>Ingest P6, procurement, and field production for one active site into the existing workspace. Agree the gold metric definitions.</p></div>
+          <div class="ask-item"><div class="n">WEEKS 3–4</div><h4>Forecast &amp; control</h4><p>Train the COD-slip and driver model on site history and turn on crew SPC alerts. Launch Genie for the project team.</p></div>
+          <div class="ask-item"><div class="n">WEEKS 5–6</div><h4>Prove the value</h4><p>Back-test the forecast against actuals, run what-if scenarios with the PM, and size the rollout across the Energy portfolio.</p></div>
+        </div>
+        <div class="closer">Success test: <b>did the model flag slip earlier than the weekly schedule update?</b> If it did, roll it out. If it didn't, you've lost six weeks and kept the data foundation.</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Prepared by Colin Urquhart, Databricks · for Moss Energy leadership</span>
+    <span class="mono">Demo uses synthetic data · figures illustrative</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  /* ---------- theme ---------- */
+  var root = document.documentElement, KEY = 'moss-theme';
+  try { var st = localStorage.getItem(KEY); if (st) root.setAttribute('data-theme', st); } catch (e) {}
+  function sys() { return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var n = (root.getAttribute('data-theme') || sys()) === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n); try { localStorage.setItem(KEY, n); } catch (e) {}
+    renderAll();
+  });
+  function css(v) { return getComputedStyle(root).getPropertyValue(v).trim(); }
+
+  /* ---------- synthetic portfolio ---------- */
+  var TODAY = new Date(2026, 10, 4);
+  var LD_RATE = 250; // $/MWac/day, illustrative
+  var P = [
+    { id:'cyp', name:'Project Cypress',  st:'FL', type:'PV',      mw:180, T:420, el:260, gap:6, crews:4, drv:{ 'Module deliveries':9, 'Pile refusal':4, 'Crew productivity':4, 'Weather':2, 'Interconnection':0 }, reco:'Pull forward the second module shipment via the Jacksonville port and re-sequence Blocks 7–9 to tracker-first.' },
+    { id:'mes',  name:'Project Mesquite', st:'TX', type:'PV+BESS', mw:250, T:480, el:300, gap:9, crews:4, drv:{ 'Module deliveries':14, 'Pile refusal':11, 'Crew productivity':5, 'Weather':2, 'Interconnection':2 }, reco:'Mobilize a pre-drill rig for the refusal zone in Blocks 12–15 and escalate the module PO to the alternate supplier.' },
+    { id:'lon',  name:'Project Longleaf', st:'MS', type:'PV',      mw:120, T:360, el:300, gap:1, crews:4, drv:{ 'Module deliveries':0, 'Pile refusal':0, 'Crew productivity':2, 'Weather':1, 'Interconnection':0 }, reco:'On track. Release one crew to Mesquite after mechanical completion in Block 10.' },
+    { id:'sag',  name:'Project Saguaro',  st:'AZ', type:'PV',      mw:300, T:540, el:190, gap:3, crews:4, drv:{ 'Module deliveries':0, 'Pile refusal':7, 'Crew productivity':3, 'Weather':1, 'Interconnection':0 }, reco:'Caliche is driving refusal. Run a geotech sweep on the remaining blocks before the pile crews arrive.' },
+    { id:'pal',  name:'Project Palmetto', st:'SC', type:'PV',      mw:90,  T:330, el:140, gap:-1, crews:4, drv:{ 'Module deliveries':0, 'Pile refusal':0, 'Crew productivity':0, 'Weather':0, 'Interconnection':0 }, reco:'Ahead of plan by 4 days. Bank the float ahead of hurricane-season weather risk.' },
+    { id:'blu',  name:'Project Bluestem', st:'OK', type:'PV+BESS', mw:200, T:450, el:380, gap:8, crews:4, drv:{ 'Module deliveries':6, 'Pile refusal':0, 'Crew productivity':4, 'Weather':2, 'Interconnection':15 }, reco:'Interconnection is the critical path. Escalate the utility substation date and shift crews to BESS yard work.' },
+    { id:'kes',  name:'Project Kestrel',  st:'NM', type:'BESS',    mw:150, T:300, el:120, gap:2, crews:4, drv:{ 'Module deliveries':4, 'Pile refusal':0, 'Crew productivity':2, 'Weather':0, 'Interconnection':0 }, reco:'Battery container ETA slipped 4 days. Set foundations and conduit early to absorb it.' },
+    { id:'jun',  name:'Project Juniper',  st:'GA', type:'PV',      mw:160, T:390, el:60,  gap:0, crews:4, drv:{ 'Module deliveries':0, 'Pile refusal':0, 'Crew productivity':0, 'Weather':0, 'Interconnection':0 }, reco:'Early civil phase, on plan. Lock the module delivery window now to protect the install curve.' }
+  ];
+  function S(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+  P.forEach(function (p) {
+    p.slip = Object.keys(p.drv).reduce(function (a, k) { return a + p.drv[k]; }, 0);
+    if (p.id === 'pal') p.slip = -4;
+    p.planned = 100 * S(p.el / p.T);
+    p.actual = Math.max(0, p.planned - p.gap);
+    p.spi = p.planned > 0 ? p.actual / p.planned : 1;
+    p.remPlan = p.T - p.el;
+    p.rate = (100 - p.actual) / (p.remPlan + p.slip); // %/day needed to land at the forecast
+    p.codPlan = addDays(TODAY, p.remPlan);
+    p.codFc = addDays(TODAY, p.remPlan + p.slip);
+    p.ld = Math.max(0, p.slip) * p.mw * LD_RATE;
+    p.risk = p.slip >= 20 ? 'hi' : p.slip >= 8 ? 'md' : 'ok';
+    p.pilesDrift = p.drv['Pile refusal'] > 0 || p.drv['Crew productivity'] >= 4;
+  });
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + Math.round(n)); return x; }
+  function fmtD(d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function money(n) { if (Math.abs(n) < 500) return '$0'; return n >= 1e6 ? '$' + (n / 1e6).toFixed(2) + 'M' : '$' + Math.round(n / 1e3) + 'K'; }
+  function riskBadge(p) {
+    var lab = { hi: '▲ High', md: '◆ Watch', ok: '● On track' }[p.risk];
+    return '<span class="badge ' + p.risk + '">' + lab + '</span>';
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]; }); }
+
+  /* ---------- tabs ---------- */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function selectTab(t) {
+    tabs.forEach(function (x) {
+      var on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+    renderAll();
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { selectTab(t); });
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        var n = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; n.focus(); selectTab(n);
+      }
+    });
+  });
+
+  /* ---------- 01 portfolio ---------- */
+  var selId = 'mes';
+  function renderKpis() {
+    var mw = P.reduce(function (a, p) { return a + p.mw; }, 0);
+    var atRisk = P.filter(function (p) { return p.risk === 'hi'; }).length;
+    var ld = P.reduce(function (a, p) { return a + p.ld; }, 0);
+    var spi = P.reduce(function (a, p) { return a + p.spi * p.mw; }, 0) / mw;
+    document.getElementById('kpis').innerHTML =
+      kpi('Portfolio', mw.toLocaleString() + ' MW', P.length + ' active projects') +
+      kpi('Weighted SPI', spi.toFixed(2), 'earned vs. planned progress') +
+      kpi('High-risk CODs', atRisk, 'forecast slip ≥ 20 days') +
+      kpi('LD exposure', money(ld), 'at forecast, illustrative rate');
+  }
+  function kpi(l, v, s) { return '<div class="kpi"><div class="l">' + l + '</div><div class="v">' + v + '</div><div class="s">' + s + '</div></div>'; }
+
+  function renderTable() {
+    var rows = P.slice().sort(function (a, b) { return b.slip - a.slip; }).map(function (p) {
+      var slipTxt = p.slip > 0 ? '+' + p.slip + 'd' : p.slip < 0 ? p.slip + 'd' : 'on plan';
+      return '<tr class="prow' + (p.id === selId ? ' sel' : '') + '" tabindex="0" data-id="' + p.id + '" aria-selected="' + (p.id === selId) + '">' +
+        '<td><div class="pname">' + p.name + '</div><div class="psub">' + p.st + ' · ' + p.type + ' · ' + Math.round(p.actual) + '% complete</div></td>' +
+        '<td class="r">' + p.mw + '</td><td class="r">' + p.spi.toFixed(2) + '</td>' +
+        '<td class="r">' + fmtD(p.codFc) + '<div class="psub">' + slipTxt + '</div></td><td>' + riskBadge(p) + '</td></tr>';
+    }).join('');
+    var tb = document.querySelector('#ptable tbody'); tb.innerHTML = rows;
+    tb.querySelectorAll('.prow').forEach(function (r) {
+      function go() { selId = r.dataset.id; renderTable(); renderDetail(); }
+      r.addEventListener('click', go);
+      r.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+  }
+
+  function renderDetail() {
+    var p = P.find(function (x) { return x.id === selId; });
+    var mx = Math.max.apply(null, Object.values(p.drv).concat([1]));
+    var drvHtml = p.slip <= 0
+      ? '<div class="psub">No material delay drivers. The project is at or ahead of plan.</div>'
+      : Object.keys(p.drv).sort(function (a, b) { return p.drv[b] - p.drv[a]; }).filter(function (k) { return p.drv[k] > 0; }).map(function (k) {
+          return '<div class="drv"><span>' + k + '</span><div class="track"><div class="fill" style="width:' + (p.drv[k] / mx * 100) + '%"></div></div><span class="dv">+' + p.drv[k] + 'd</span></div>';
+        }).join('');
+    document.getElementById('detail').innerHTML =
+      '<h3>' + p.name + ' ' + riskBadge(p) + '</h3>' +
+      '<div class="dsub">' + p.mw + ' MWac ' + p.type + ' · ' + p.st + ' · planned COD ' + fmtD(p.codPlan) + ' → forecast <b>' + fmtD(p.codFc) + '</b>' + (p.ld ? ' · LD exposure <b>' + money(p.ld) + '</b>' : '') + '</div>' +
+      '<div class="chart-title">S-curve: cumulative % complete</div>' +
+      '<div class="chartbox" id="scurve"></div>' +
+      '<div class="legend"><span><i style="border-color:var(--ink-faint);border-top-style:dashed"></i>Baseline plan</span><span><i style="border-color:var(--ink)"></i>Actual</span><span><i style="border-color:var(--accent);border-top-style:dotted;border-top-width:3px"></i>Forecast (±band)</span></div>' +
+      '<div class="chart-title">What\'s driving the slip (days)</div><div class="drivers">' + drvHtml + '</div>' +
+      '<div class="reco"><div class="rl">Recommended action</div>' + p.reco + '</div>';
+    drawSCurve(p);
+  }
+
+  function drawSCurve(p) {
+    var box = document.getElementById('scurve'); if (!box) return;
+    var W = box.clientWidth || 460, H = 210, m = { l: 34, r: 12, t: 10, b: 24 };
+    var end = p.T + Math.max(p.slip, 0) + 10;
+    var x = function (d) { return m.l + d / end * (W - m.l - m.r); };
+    var y = function (v) { return m.t + (1 - v / 100) * (H - m.t - m.b); };
+    var ink = css('--ink'), faint = css('--ink-faint'), line = css('--line'), acc = css('--accent');
+    var plan = [], act = [], fc = [], bandU = [], bandL = [];
+    for (var d = 0; d <= p.T; d += 5) plan.push([d, 100 * S(d / p.T)]);
+    var ratio = p.planned > 0 ? p.actual / p.planned : 1;
+    for (d = 0; d <= p.el; d += 5) act.push([d, 100 * S(d / p.T) * (ratio + (1 - ratio) * (1 - d / p.el))]);
+    act.push([p.el, p.actual]);
+    var fEnd = p.T + p.slip, bw = Math.abs(p.slip) * 0.4 + 5;
+    function fcAt(t, endT) { var f = (t - p.el) / (endT - p.el); f = Math.max(0, Math.min(1, f)); return p.actual + (100 - p.actual) * (1 - Math.pow(1 - f, 1.7)); }
+    for (d = p.el; d <= fEnd; d += 4) { fc.push([d, fcAt(d, fEnd)]); }
+    fc.push([fEnd, 100]);
+    for (d = p.el; d <= fEnd + bw; d += 4) { bandU.push([d, fcAt(d, fEnd - bw)]); bandL.push([d, fcAt(d, fEnd + bw)]); }
+    bandU.push([fEnd + bw, 100]);
+    function path(a) { return a.map(function (q, i) { return (i ? 'L' : 'M') + x(q[0]).toFixed(1) + ',' + y(q[1]).toFixed(1); }).join(''); }
+    var band = path(bandU) + bandL.slice().reverse().map(function (q) { return 'L' + x(q[0]).toFixed(1) + ',' + y(q[1]).toFixed(1); }).join('') + 'Z';
+    var grid = [0, 25, 50, 75, 100].map(function (v) { return '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="' + line + '"/><text x="' + (m.l - 6) + '" y="' + (y(v) + 3.5) + '" font-size="10" text-anchor="end" fill="' + faint + '">' + v + '%</text>'; }).join('');
+    var svg = '<svg width="' + W + '" height="' + H + '" role="img" aria-label="S-curve for ' + p.name + ': ' + Math.round(p.actual) + '% complete versus ' + Math.round(p.planned) + '% planned; forecast COD ' + fmtD(p.codFc) + '">' + grid +
+      '<line x1="' + x(p.el) + '" x2="' + x(p.el) + '" y1="' + m.t + '" y2="' + (H - m.b) + '" stroke="' + faint + '" stroke-dasharray="2 3"/>' +
+      '<text x="' + x(p.el) + '" y="' + (H - 8) + '" font-size="10" text-anchor="middle" fill="' + faint + '">today</text>' +
+      '<path d="' + band + '" fill="' + acc + '" opacity=".12"/>' +
+      '<path d="' + path(plan) + '" fill="none" stroke="' + faint + '" stroke-width="2" stroke-dasharray="5 4"/>' +
+      '<path d="' + path(fc) + '" fill="none" stroke="' + acc + '" stroke-width="2.5" stroke-dasharray="1 4" stroke-linecap="round"/>' +
+      '<path d="' + path(act) + '" fill="none" stroke="' + ink + '" stroke-width="2"/>' +
+      '<circle cx="' + x(p.el) + '" cy="' + y(p.actual) + '" r="4.5" fill="' + ink + '" stroke="' + css('--ground') + '" stroke-width="2"/>' +
+      '<circle cx="' + x(fEnd) + '" cy="' + y(100) + '" r="4.5" fill="' + acc + '" stroke="' + css('--ground') + '" stroke-width="2"/>' +
+      '<line id="xh" y1="' + m.t + '" y2="' + (H - m.b) + '" stroke="' + faint + '" opacity="0"/>' +
+      '<rect x="' + m.l + '" y="' + m.t + '" width="' + (W - m.l - m.r) + '" height="' + (H - m.t - m.b) + '" fill="transparent" id="hit"/></svg><div class="tip" id="stip"></div>';
+    box.innerHTML = svg;
+    var hit = box.querySelector('#hit'), tip = box.querySelector('#stip'), xh = box.querySelector('#xh');
+    hit.addEventListener('mousemove', function (e) {
+      var r = box.getBoundingClientRect(), px = e.clientX - r.left;
+      var d = Math.round((px - m.l) / (W - m.l - m.r) * end); d = Math.max(0, Math.min(end, d));
+      var pl = d <= p.T ? 100 * S(d / p.T) : 100;
+      var s = '<b>Day ' + d + '</b> · ' + fmtD(addDays(TODAY, d - p.el)) + '<br>Plan ' + pl.toFixed(0) + '%';
+      if (d <= p.el) s += ' · Actual ' + (100 * S(d / p.T) * (ratio + (1 - ratio) * (1 - d / p.el))).toFixed(0) + '%';
+      else s += ' · Forecast ' + (d >= fEnd ? 100 : fcAt(d, fEnd)).toFixed(0) + '%';
+      tip.innerHTML = s; tip.style.left = px + 'px'; tip.style.top = (e.clientY - r.top) + 'px'; tip.style.opacity = 1;
+      xh.setAttribute('x1', px); xh.setAttribute('x2', px); xh.setAttribute('opacity', .6);
+    });
+    hit.addEventListener('mouseleave', function () { tip.style.opacity = 0; xh.setAttribute('opacity', 0); });
+  }
+
+  /* ---------- 02 SPC ---------- */
+  function rng(seed) { return function () { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }; }
+  function gauss(r) { var u = 0, v = 0; while (!u) u = r(); v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  var crewNames = ['Crew A', 'Crew B', 'Crew C', 'Crew D'];
+  var spcProj = 'mes', spcCrew = 1;
+  function spcSeries(p, c) {
+    var seed = 0; for (var i = 0; i < p.id.length; i++) seed += p.id.charCodeAt(i) * 31; seed += c * 977;
+    var r = rng(seed), base = 118 + c * 6 - (p.type === 'BESS' ? 0 : 0), sd = 6, out = [];
+    var drifting = p.pilesDrift && c === (p.id === 'sag' ? 2 : 1);
+    for (var d = 0; d < 30; d++) {
+      var v = base + gauss(r) * sd;
+      if (drifting && d >= 21) v -= 11 + (d - 21) * 0.8;
+      if (drifting && d === 24) v -= 12;
+      if (!drifting && p.pilesDrift && c === 3 && d === 17) v += 21;
+      out.push(Math.round(v));
+    }
+    return out;
+  }
+  function renderSpcControls() {
+    var sel = document.getElementById('spcProj');
+    if (!sel.options.length) {
+      P.filter(function (p) { return p.type !== 'BESS'; }).forEach(function (p) { sel.add(new Option(p.name + ' (' + p.st + ')', p.id)); });
+      sel.value = spcProj; sel.addEventListener('change', function () { spcProj = sel.value; drawSpc(); });
+      var seg = document.getElementById('crewSeg');
+      seg.innerHTML = crewNames.map(function (n, i) { return '<button type="button" data-c="' + i + '" aria-pressed="' + (i === spcCrew) + '">' + n + '</button>'; }).join('');
+      seg.querySelectorAll('button').forEach(function (b) { b.addEventListener('click', function () { spcCrew = +b.dataset.c; seg.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b); }); drawSpc(); }); });
+    }
+  }
+  function drawSpc() {
+    var p = P.find(function (x) { return x.id === spcProj; }), s = spcSeries(p, spcCrew);
+    var base = s.slice(0, 20), mean = base.reduce(function (a, b) { return a + b; }, 0) / 20;
+    var mr = 0; for (var i = 1; i < 20; i++) mr += Math.abs(base[i] - base[i - 1]); mr /= 19;
+    var sig = mr / 1.128, ucl = mean + 3 * sig, lcl = mean - 3 * sig;
+    var flag = s.map(function (v) { return v > ucl || v < lcl; });
+    var run = 0; s.forEach(function (v, i) { run = v < mean ? run + 1 : 0; if (run >= 7) for (var k = i - run + 1; k <= i; k++) flag[k] = flag[k] || 'run'; });
+    var box = document.getElementById('spcBox'), W = box.clientWidth || 800, H = 260, m = { l: 40, r: 56, t: 14, b: 26 };
+    var lo = Math.min(lcl, Math.min.apply(null, s)) - 6, hi = Math.max(ucl, Math.max.apply(null, s)) + 6;
+    var x = function (i) { return m.l + i / 29 * (W - m.l - m.r); }, y = function (v) { return m.t + (1 - (v - lo) / (hi - lo)) * (H - m.t - m.b); };
+    var ink = css('--ink'), faint = css('--ink-faint'), soft = css('--ink-soft'), bad = css('--bad'), line = css('--line'), gr = css('--ground'), acc = css('--accent');
+    var g = '';
+    [[ucl, 'UCL'], [mean, 'Mean'], [lcl, 'LCL']].forEach(function (q) {
+      g += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(q[0]) + '" y2="' + y(q[0]) + '" stroke="' + (q[1] === 'Mean' ? soft : faint) + '" stroke-dasharray="' + (q[1] === 'Mean' ? '0' : '5 4') + '" stroke-width="1"/>' +
+        '<text x="' + (W - m.r + 6) + '" y="' + (y(q[0]) + 3.5) + '" font-size="10.5" fill="' + soft + '">' + q[1] + ' ' + q[0].toFixed(0) + '</text>';
+    });
+    g += '<rect x="' + x(19.5) + '" y="' + m.t + '" width="' + (x(29) - x(19.5) + 6) + '" height="' + (H - m.t - m.b) + '" fill="' + line + '" opacity=".35"/>';
+    g += '<text x="' + (x(19.5) + 6) + '" y="' + (m.t + 12) + '" font-size="10" fill="' + faint + '">monitoring window</text>';
+    [0, 9, 19, 29].forEach(function (i) { g += '<text x="' + x(i) + '" y="' + (H - 8) + '" font-size="10" text-anchor="middle" fill="' + faint + '">' + fmtD(addDays(TODAY, i - 29)).replace(/, \d+$/, '') + '</text>'; });
+    g += '<path d="' + s.map(function (v, i) { return (i ? 'L' : 'M') + x(i) + ',' + y(v); }).join('') + '" fill="none" stroke="' + ink + '" stroke-width="2"/>';
+    s.forEach(function (v, i) {
+      g += flag[i] ? '<rect x="' + (x(i) - 5) + '" y="' + (y(v) - 5) + '" width="10" height="10" transform="rotate(45 ' + x(i) + ' ' + y(v) + ')" fill="' + bad + '" stroke="' + gr + '" stroke-width="2"/>'
+                   : '<circle cx="' + x(i) + '" cy="' + y(v) + '" r="4" fill="' + ink + '" stroke="' + gr + '" stroke-width="2"/>';
+      g += '<rect class="hp" data-i="' + i + '" x="' + (x(i) - 12) + '" y="' + m.t + '" width="24" height="' + (H - m.t - m.b) + '" fill="transparent"/>';
+    });
+    box.innerHTML = '<svg width="' + W + '" height="' + H + '" role="img" aria-label="Control chart of piles per day for ' + crewNames[spcCrew] + ' on ' + p.name + '">' + g + '</svg><div class="tip" id="ctip"></div>';
+    var tip = box.querySelector('#ctip');
+    box.querySelectorAll('.hp').forEach(function (h) {
+      h.addEventListener('mouseenter', function () {
+        var i = +h.dataset.i, v = s[i];
+        tip.innerHTML = '<b>' + fmtD(addDays(TODAY, i - 29)) + '</b><br>' + v + ' piles/day' + (flag[i] ? ' · <b>' + (flag[i] === 'run' ? 'run below mean' : 'beyond 3σ') + '</b>' : '');
+        tip.style.left = x(i) + 'px'; tip.style.top = y(v) + 'px'; tip.style.opacity = 1;
+      });
+      h.addEventListener('mouseleave', function () { tip.style.opacity = 0; });
+    });
+    var nOut = flag.filter(function (f) { return f === true; }).length, nRun = flag.filter(function (f) { return f === 'run'; }).length;
+    var last7 = s.slice(-7).reduce(function (a, b) { return a + b; }, 0) / 7, lost = Math.max(0, (mean - last7) * 7);
+    var status = nOut || nRun ? '<span class="badge hi">▲ Out of control</span>' : '<span class="badge ok">● In control</span>';
+    document.getElementById('spcFlags').innerHTML =
+      '<div class="flag"><div class="fl">Process status</div><div class="fv">' + status + '</div><div class="psub">' + (nOut || nRun ? 'Alert sent to the site superintendent' : 'No action needed') + '</div></div>' +
+      '<div class="flag"><div class="fl">Signals (last 30 days)</div><div class="fv">' + nOut + ' beyond 3σ · ' + nRun + ' in run</div><div class="psub">Rule 1 (±3σ) and Rule 2 (7 in a row below the mean)</div></div>' +
+      '<div class="flag"><div class="fl">Piles lost, last 7 days</div><div class="fv">' + Math.round(lost) + '</div><div class="psub">' + (lost > 20 ? 'Likely cause: ' + (p.drv['Pile refusal'] ? 'pile refusal (geotech)' : 'crew productivity') : 'Within normal variation') + '</div></div>';
+  }
+
+  /* ---------- 03 Genie ---------- */
+  var QS = [
+    { q: 'Which projects are most at risk of missing COD?', k: ['risk', 'miss', 'cod', 'late', 'behind', 'slip'],
+      sql: "SELECT project_name, mwac, spi,\n       forecast_cod, forecast_slip_days\nFROM   moss_energy.gold.project_cod_forecast\nWHERE  forecast_slip_days > 0\nORDER  BY forecast_slip_days DESC\nLIMIT  5;",
+      run: function () {
+        var r = P.filter(function (p) { return p.slip > 0; }).sort(function (a, b) { return b.slip - a.slip; }).slice(0, 5);
+        return { nar: '<b>' + r[0].name + '</b> and <b>' + r[1].name + '</b> are most exposed, forecast <b>' + r[0].slip + '</b> and <b>' + r[1].slip + '</b> days late. ' + r[0].name + ' is driven by module deliveries and pile refusal. ' + r[1].name + ' is waiting on interconnection.',
+          cols: ['Project', 'MWac', 'SPI', 'Forecast COD', 'Slip'], rows: r.map(function (p) { return [p.name, p.mw, p.spi.toFixed(2), fmtD(p.codFc), '+' + p.slip + 'd']; }) };
+      } },
+    { q: "What's our total LD exposure?", k: ['ld', 'liquidated', 'damage', 'exposure', 'penalt', 'cost'],
+      sql: "SELECT project_name,\n       forecast_slip_days,\n       forecast_slip_days * mwac * ld_rate_per_mw_day AS ld_exposure\nFROM   moss_energy.gold.project_cod_forecast\nJOIN   moss_energy.gold.contract_terms USING (project_id)\nWHERE  forecast_slip_days > 0\nORDER  BY ld_exposure DESC;",
+      run: function () {
+        var r = P.filter(function (p) { return p.ld > 0; }).sort(function (a, b) { return b.ld - a.ld; });
+        var t = r.reduce(function (a, p) { return a + p.ld; }, 0);
+        return { nar: 'Forecast LD exposure across the portfolio is <b>' + money(t) + '</b>. <b>' + r[0].name + '</b> accounts for ' + Math.round(r[0].ld / t * 100) + '% of it.',
+          cols: ['Project', 'Slip', 'LD exposure'], rows: r.map(function (p) { return [p.name, '+' + p.slip + 'd', money(p.ld)]; }) };
+      } },
+    { q: "What's driving delays across the portfolio?", k: ['driv', 'cause', 'why', 'reason', 'root'],
+      sql: "SELECT driver,\n       SUM(attributed_days) AS slip_days,\n       COUNT(DISTINCT project_id) AS projects\nFROM   moss_energy.gold.delay_attribution\nGROUP  BY driver\nORDER  BY slip_days DESC;",
+      run: function () {
+        var agg = {}; P.forEach(function (p) { Object.keys(p.drv).forEach(function (k) { if (p.drv[k] > 0) { agg[k] = agg[k] || [0, 0]; agg[k][0] += p.drv[k]; agg[k][1]++; } }); });
+        var r = Object.keys(agg).sort(function (a, b) { return agg[b][0] - agg[a][0]; });
+        return { nar: '<b>' + r[0] + '</b> is the largest driver at <b>' + agg[r[0]][0] + ' slip-days</b> across ' + agg[r[0]][1] + ' projects, followed by ' + r[1].toLowerCase() + ' (' + agg[r[1]][0] + ' days). That makes the supply chain the first lever to pull.',
+          cols: ['Driver', 'Slip-days', 'Projects'], rows: r.map(function (k) { return [k, agg[k][0], agg[k][1]]; }) };
+      } },
+    { q: 'Which crews are out of statistical control?', k: ['crew', 'control', 'spc', 'productiv', 'pile', 'sigma'],
+      sql: "SELECT project_name, crew_id, signal_type,\n       MAX(signal_date) AS last_signal\nFROM   moss_energy.gold.crew_spc_signals\nWHERE  signal_date >= current_date() - INTERVAL 7 DAYS\nGROUP  BY ALL\nORDER  BY last_signal DESC;",
+      run: function () {
+        var r = P.filter(function (p) { return p.pilesDrift && p.type !== 'BESS'; }).map(function (p) { return [p.name, crewNames[p.id === 'sag' ? 2 : 1], 'Rule 1 + Rule 2', fmtD(addDays(TODAY, -2))]; });
+        return { nar: '<b>' + r.length + ' crews</b> show out-of-control signals this week, each on a site where Genie also attributes slip to ground conditions or productivity. Open tab 02 to see the control charts.',
+          cols: ['Project', 'Crew', 'Signal', 'Last signal'], rows: r };
+      } },
+    { q: 'Compare PV vs. PV+BESS schedule performance', k: ['compare', 'bess', 'battery', 'storage', 'type', 'pv'],
+      sql: "SELECT project_type,\n       COUNT(*) AS projects,\n       ROUND(SUM(spi * mwac) / SUM(mwac), 2) AS weighted_spi,\n       ROUND(AVG(forecast_slip_days), 1) AS avg_slip\nFROM   moss_energy.gold.project_cod_forecast\nGROUP  BY project_type;",
+      run: function () {
+        var g = {}; P.forEach(function (p) { g[p.type] = g[p.type] || { n: 0, mw: 0, s: 0, sl: 0 }; var o = g[p.type]; o.n++; o.mw += p.mw; o.s += p.spi * p.mw; o.sl += p.slip; });
+        var r = Object.keys(g).map(function (k) { var o = g[k]; return [k, o.n, (o.s / o.mw).toFixed(2), (o.sl / o.n).toFixed(1) + 'd']; });
+        return { nar: 'Hybrid <b>PV+BESS</b> projects run behind standalone PV, averaging <b>' + (g['PV+BESS'].sl / g['PV+BESS'].n).toFixed(1) + ' days</b> of slip versus ' + (g['PV'].sl / g['PV'].n).toFixed(1) + '. Interconnection and dual supply chains are the difference.',
+          cols: ['Type', 'Projects', 'Weighted SPI', 'Avg slip'], rows: r };
+      } },
+    { q: 'Show module delivery delays by project', k: ['module', 'deliver', 'supply', 'procure', 'ship', 'tracker', 'container'],
+      sql: "SELECT p.project_name, s.supplier, s.po_number,\n       s.original_eta, s.current_eta,\n       DATEDIFF(s.current_eta, s.original_eta) AS eta_slip_days\nFROM   moss_energy.gold.shipments s\nJOIN   moss_energy.gold.projects p USING (project_id)\nWHERE  s.material_class IN ('PV_MODULE','BESS_CONTAINER')\n  AND  s.current_eta > s.original_eta;",
+      run: function () {
+        var r = P.filter(function (p) { return p.drv['Module deliveries'] > 0; }).sort(function (a, b) { return b.drv['Module deliveries'] - a.drv['Module deliveries']; });
+        return { nar: '<b>' + r.length + ' projects</b> have late module or container shipments, totaling <b>' + r.reduce(function (a, p) { return a + p.drv['Module deliveries']; }, 0) + ' days</b> of schedule impact. ' + r[0].name + ' is the worst affected.',
+          cols: ['Project', 'Material', 'Schedule impact'], rows: r.map(function (p) { return [p.name, p.type === 'BESS' ? 'BESS containers' : 'PV modules', '+' + p.drv['Module deliveries'] + 'd']; }) };
+      } }
+  ];
+  function renderChips() {
+    var c = document.getElementById('chips'); if (c.children.length) return;
+    c.innerHTML = QS.map(function (q, i) { return '<button type="button" class="chip" data-i="' + i + '">' + esc(q.q) + '</button>'; }).join('');
+    c.querySelectorAll('.chip').forEach(function (b) { b.addEventListener('click', function () { document.getElementById('askIn').value = QS[+b.dataset.i].q; answer(QS[+b.dataset.i], QS[+b.dataset.i].q); }); });
+    document.getElementById('askForm').addEventListener('submit', function (e) {
+      e.preventDefault(); var t = document.getElementById('askIn').value.trim(); if (!t) return;
+      var lt = t.toLowerCase(), best = null, bs = 0;
+      QS.forEach(function (q) { var s = q.k.filter(function (k) { return lt.indexOf(k) >= 0; }).length; if (s > bs) { bs = s; best = q; } });
+      answer(best, t);
+    });
+  }
+  function answer(q, asked) {
+    var a = document.getElementById('answer');
+    a.innerHTML = '<div class="q">' + esc(asked) + '</div><div class="thinking" style="margin-top:12px"><span class="dots"><span></span><span></span><span></span></span>Generating SQL over moss_energy.gold…</div>';
+    setTimeout(function () {
+      if (!q) {
+        a.innerHTML = '<div class="q">' + esc(asked) + '</div><div class="nar">This prototype only has six sample questions wired up. In production, Genie answers open-ended questions over your governed tables. Try one of the suggestions above.</div>';
+        return;
+      }
+      var r = q.run();
+      a.innerHTML = '<div class="q">' + esc(asked) + '</div><div class="nar">' + r.nar + '</div>' +
+        '<div style="overflow-x:auto"><table class="ptable"><thead><tr>' + r.cols.map(function (c, i) { return '<th' + (i ? ' class="r"' : '') + '>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        r.rows.map(function (row) { return '<tr>' + row.map(function (v, i) { return '<td' + (i ? ' class="r"' : '') + '>' + esc(v) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>' +
+        '<details class="sql"><summary>View generated SQL · governed by Unity Catalog</summary><pre>' + esc(q.sql) + '</pre></details>';
+    }, 750);
+  }
+
+  /* ---------- 04 What-if ---------- */
+  var wiProj = 'mes';
+  function renderWiControls() {
+    var sel = document.getElementById('wiProj');
+    if (sel.options.length) return;
+    P.filter(function (p) { return p.slip > 0; }).sort(function (a, b) { return b.slip - a.slip; }).forEach(function (p) { sel.add(new Option(p.name + ' (+' + p.slip + 'd)', p.id)); });
+    sel.value = wiProj; sel.addEventListener('change', function () { wiProj = sel.value; drawWi(); });
+    ['sCrews', 'sMod', 'sWx', 'sSix'].forEach(function (id) { document.getElementById(id).addEventListener('input', drawWi); });
+  }
+  function drawWi() {
+    var p = P.find(function (x) { return x.id === wiProj; });
+    var cr = +document.getElementById('sCrews').value, md = +document.getElementById('sMod').value, wx = +document.getElementById('sWx').value, six = +document.getElementById('sSix').value;
+    document.getElementById('vCrews').textContent = '+' + cr; document.getElementById('vMod').textContent = md + ' d';
+    document.getElementById('vWx').textContent = (wx > 0 ? '+' : '') + wx + ' d'; document.getElementById('vSix').textContent = six ? 'On' : 'Off';
+    var o = whatIf(p, cr, md, wx, six), rem = o.rem, slip = o.slip, ld = o.ld, addCost = o.cost;
+    var saved = p.ld - ld, net = saved - addCost;
+    function dl(v, good, unit) { var cls = v === 0 ? '' : (good ? 'good' : 'bad'); return '<div class="delta ' + cls + '">' + unit + '</div>'; }
+    document.getElementById('wiBig').innerHTML =
+      kpi('Forecast COD', fmtD(addDays(TODAY, p.remPlan + slip)), '') .replace('<div class="s"></div>', dl(slip - p.slip, slip < p.slip, slip === p.slip ? 'no change vs. baseline' : (slip - p.slip > 0 ? '+' : '') + (slip - p.slip) + ' days vs. baseline')) +
+      kpi('LD exposure', money(ld), '').replace('<div class="s"></div>', dl(saved, saved > 0, saved === 0 ? 'no change vs. baseline' : (saved > 0 ? '−' : '+') + money(Math.abs(saved)) + ' vs. baseline')) +
+      kpi('Recovery cost', money(addCost), 'added crews + overtime (illustrative)') +
+      kpi('Net impact', (net >= 0 ? '+' : '−') + money(Math.abs(net)), net >= 0 ? 'LD avoided exceeds recovery cost' : 'recovery costs more than it saves');
+    // bar chart: baseline vs plan
+    var box = document.getElementById('wiChart'), W = box.clientWidth || 420, H = 92, m = { l: 92, r: 50, t: 6, b: 6 };
+    var mx = Math.max(p.slip, slip, 10), bh = 26, ink = css('--ink-faint'), acc = css('--accent'), good = css('--good'), soft = css('--ink-soft');
+    var xs = function (v) { return m.l + Math.max(0, v) / mx * (W - m.l - m.r); };
+    function bar(yy, v, col, lab) {
+      var w = Math.max(xs(v) - m.l, 2);
+      return '<text x="' + (m.l - 8) + '" y="' + (yy + bh / 2 + 4) + '" font-size="11" text-anchor="end" fill="' + soft + '">' + lab + '</text>' +
+        '<path d="M' + m.l + ',' + yy + 'h' + (w - 4) + 'a4,4 0 0 1 4,4v' + (bh - 8) + 'a4,4 0 0 1 -4,4h-' + (w - 4) + 'z" fill="' + col + '"/>' +
+        '<text x="' + (m.l + w + 6) + '" y="' + (yy + bh / 2 + 4) + '" font-size="11.5" fill="' + css('--ink') + '">' + (v > 0 ? '+' : '') + v + 'd</text>';
+    }
+    box.innerHTML = '<svg width="' + W + '" height="' + H + '" role="img" aria-label="Baseline slip ' + p.slip + ' days versus plan slip ' + slip + ' days">' +
+      bar(m.t, p.slip, ink, 'Baseline') + bar(m.t + bh + 14, slip, slip < p.slip ? good : acc, 'This plan') + '</svg>';
+    document.getElementById('wiNote').innerHTML = slip <= 0
+      ? '<b>This plan recovers the COD.</b> In production, Genie would draft the crew mobilization request and update the P6 forecast for approval.'
+      : 'Still <b>' + slip + ' days</b> late. Biggest remaining driver: <b>' + Object.keys(p.drv).sort(function (a, b) { return p.drv[b] - p.drv[a]; })[0].toLowerCase() + '</b>. Try adding crews and a 6-day week together.';
+  }
+
+  function whatIf(p, cr, md, wx, six) {
+    var mult = (1 + 0.11 * cr - 0.008 * cr * cr) * (six ? 1.09 : 1);
+    var rem = (100 - p.actual) / (p.rate * mult) + md * 0.6 + wx * 0.85;
+    var slip = Math.round(rem - p.remPlan);
+    var cost = cr * 38000 * Math.ceil(rem / 30) + (six ? 0.12 * p.mw * 1000 * Math.ceil(rem / 30) : 0); // illustrative crew + OT cost
+    return { rem: rem, slip: slip, ld: Math.max(0, slip) * p.mw * LD_RATE, cost: cost };
+  }
+  /* ---------- render ---------- */
+  function renderAll() {
+    renderKpis(); renderTable(); renderDetail();
+    renderSpcControls(); if (!document.getElementById('p-spc').hidden) drawSpc();
+    renderChips();
+    renderWiControls(); if (!document.getElementById('p-wi').hidden) drawWi();
+  }
+  /* ---------- Genie walkthrough player ---------- */
+  (function () {
+    var chat = document.getElementById('gchat'), gin = document.getElementById('ginput'), gtext = document.getElementById('gtext');
+    var cap = document.getElementById('gcap'), card = document.getElementById('gcard'), pf = document.getElementById('pf');
+    var ptime = document.getElementById('ptime'), pp = document.getElementById('pp'), pbar = document.getElementById('pbar');
+    var mes = P.find(function (x) { return x.id === 'mes'; });
+    var late = P.filter(function (p) { return p.slip > 0 && p.codFc < addDays(TODAY, 220); }).sort(function (a, b) { return b.slip - a.slip; });
+    var fix = whatIf(mes, 2, 0, 0, 0);
+    var token = 0, paused = true, fast = false, elapsed = 0, started = false, curChap = 0;
+    var CH = [
+      { t: 'Ask in plain English', d: 15000, run: sc1 },
+      { t: 'Drill into the why', d: 13000, run: sc2 },
+      { t: 'Test a recovery', d: 14000, run: sc3 },
+      { t: 'Governed by default', d: 7000, run: sc4 }
+    ];
+    var TOTAL = CH.reduce(function (a, c) { return a + c.d; }, 0), starts = [], acc = 0;
+    CH.forEach(function (c) { starts.push(acc); acc += c.d; });
+    function fmt(ms) { var sec = Math.round(ms / 1000); return Math.floor(sec / 60) + ':' + ('0' + sec % 60).slice(-2); }
+    function prog() {
+      var e = Math.min(elapsed, TOTAL); pf.style.width = (e / TOTAL * 100) + '%';
+      ptime.textContent = fmt(e) + ' / ' + fmt(TOTAL); pbar.setAttribute('aria-valuenow', Math.round(e / TOTAL * 100));
+    }
+    function wait(ms) {
+      var my = token;
+      return new Promise(function (res, rej) {
+        if (fast) return res();
+        var left = ms;
+        (function tick() {
+          if (my !== token) return rej('stop');
+          if (paused) return setTimeout(tick, 120);
+          var st = Math.min(80, left); left -= st; elapsed += st; prog();
+          if (left <= 0) res(); else setTimeout(tick, st);
+        })();
+      });
+    }
+    function el(cls, html) { var d = document.createElement('div'); d.className = 'g-msg ' + cls; if (fast) d.style.animation = 'none'; d.innerHTML = html || ''; chat.appendChild(d); trim(); return d; }
+    function tot() { var t = 0; for (var i = 0; i < chat.children.length; i++) t += chat.children[i].offsetHeight + 10; return t; }
+    function trim() { var H = chat.clientHeight - 24; while (tot() > H && chat.children.length > 1) chat.removeChild(chat.firstChild); }
+    function hot(t) { document.querySelectorAll('.g-tbl').forEach(function (x) { x.classList.toggle('hot', t.indexOf(x.dataset.t) >= 0); }); }
+    function say(t) { cap.textContent = t; }
+    async function type(text, cps) {
+      gin.classList.add('typing'); gtext.innerHTML = '';
+      for (var i = 1; i <= text.length; i++) { gtext.innerHTML = esc(text.slice(0, i)) + '<span class="caret"></span>'; await wait(1000 / (cps || 22)); }
+      await wait(350);
+      gin.classList.remove('typing'); gtext.textContent = 'Ask a follow-up…';
+      el('g-user', esc(text));
+    }
+    async function think(bot, steps) {
+      var box = document.createElement('div'); bot.appendChild(box);
+      for (var i = 0; i < steps.length; i++) {
+        var r = document.createElement('div'); r.className = 'g-step'; r.innerHTML = '<span class="dots"><span></span><span></span><span></span></span>' + steps[i];
+        box.appendChild(r); trim(); await wait(700); r.innerHTML = '<span class="ok">✓</span>' + steps[i];
+      }
+    }
+    async function sqlType(bot, sql) {
+      var pre = document.createElement('div'); pre.className = 'g-sql'; bot.appendChild(pre);
+      for (var i = 0; i <= sql.length; i += 3) { pre.textContent = sql.slice(0, i); if (i % 30 === 0) trim(); await wait(16); }
+      pre.textContent = sql; trim();
+    }
+    function bars(bot, rows, max, unit) {
+      var b = document.createElement('div'); b.className = 'g-bars';
+      b.innerHTML = rows.map(function (r) { return '<div class="g-bar"><span>' + esc(r[0]) + '</span><div class="tr"><div class="fi" data-w="' + (r[1] / max * 100) + '"></div></div><span class="v">' + r[2] + '</span></div>'; }).join('');
+      bot.appendChild(b); trim();
+      var fill = function () { b.querySelectorAll('.fi').forEach(function (f) { f.style.width = f.dataset.w + '%'; }); };
+      if (fast) { b.querySelectorAll('.fi').forEach(function (f) { f.style.transition = 'none'; }); fill(); } else requestAnimationFrame(function () { requestAnimationFrame(fill); });
+    }
+    function nar(bot, html) { var n = document.createElement('div'); n.className = 'g-nar'; n.innerHTML = html; bot.appendChild(n); trim(); }
+
+    async function sc1() {
+      say('A superintendent asks a question in plain English. No SQL, no ticket to the data team.');
+      await type('Which projects will miss COD in the next 7 months?');
+      var bot = el('g-bot'); hot(['cod']);
+      say('Genie finds the right governed tables in Unity Catalog and writes the SQL.');
+      await think(bot, ['Reading Unity Catalog metadata', 'Using moss_energy.gold.project_cod_forecast']);
+      await sqlType(bot, "SELECT project_name, forecast_slip_days\nFROM gold.project_cod_forecast\nWHERE forecast_cod <= current_date() + INTERVAL 7 MONTHS\n  AND forecast_slip_days > 0\nORDER BY forecast_slip_days DESC;");
+      await wait(400);
+      bars(bot, late.map(function (p) { return [p.name.replace('Project ', ''), p.slip, '+' + p.slip + 'd']; }), late[0].slip);
+      nar(bot, '<b>' + late.length + ' projects</b> are forecast to slip. <b>' + late[0].name + '</b> is the most exposed at <b>+' + late[0].slip + ' days</b>.');
+      say('The answer comes back with the table, the chart, and the SQL behind it.');
+      await wait(3600);
+    }
+    async function sc2() {
+      say('A follow-up keeps its context. "It" means ' + mes.name + '.');
+      await type('Why is Mesquite late? Break it down.');
+      var bot = el('g-bot'); hot(['drv', 'shp', 'crew']);
+      await think(bot, ['Joining delay_attribution, shipments, crew_productivity']);
+      await wait(300);
+      var d = Object.keys(mes.drv).filter(function (k) { return mes.drv[k] > 0; }).sort(function (a, b) { return mes.drv[b] - mes.drv[a]; });
+      bars(bot, d.map(function (k) { return [k, mes.drv[k], '+' + mes.drv[k] + 'd']; }), mes.drv[d[0]]);
+      nar(bot, '<b>Module deliveries (+' + mes.drv['Module deliveries'] + 'd)</b> and <b>pile refusal in Blocks 12–15 (+' + mes.drv['Pile refusal'] + 'd)</b> account for ' + Math.round((mes.drv['Module deliveries'] + mes.drv['Pile refusal']) / mes.slip * 100) + '% of the slip. Crew B has also been out of statistical control for 9 days.');
+      say('Genie traces the slip to its causes across three systems in one answer.');
+      await wait(3800);
+    }
+    async function sc3() {
+      say('Now the CTO tests a recovery plan before committing cash.');
+      await type('If we add 2 pile crews at Mesquite, do we make COD? What does it cost?');
+      var bot = el('g-bot'); hot(['cod', 'ct', 'crew']);
+      await think(bot, ['Running the COD forecast model with +2 crews', 'Applying LD terms from contract_terms']);
+      await wait(300);
+      bars(bot, [['Today', mes.slip, '+' + mes.slip + 'd'], ['+2 crews', Math.max(fix.slip, 0.2), (fix.slip > 0 ? '+' : '') + fix.slip + 'd']], mes.slip);
+      nar(bot, (fix.slip <= 0 ? '<b>Yes.</b> COD recovers' : 'Slip drops') + ' to <b>' + fmtD(addDays(TODAY, mes.remPlan + fix.slip)) + '</b>. LD exposure falls from <b>' + money(mes.ld) + '</b> to <b>' + money(fix.ld) + '</b>, for about <b>' + money(fix.cost) + '</b> in added crew cost. Net benefit: <b>' + money(mes.ld - fix.ld - fix.cost) + '</b>.');
+      say('What-if answers come from the same ML model the planners use.');
+      await wait(4200);
+    }
+    async function sc4() {
+      hot([]); say('');
+      card.hidden = false;
+      card.innerHTML = '<div><div class="e">Every answer is governed</div><h3>Same number for every user.</h3><p>Unity Catalog permissions, lineage, and audit apply to every question. A PM sees only their projects; the CTO sees the portfolio.</p><button class="bigplay" id="bigplay2" aria-label="Replay the walkthrough">↺</button></div>';
+      document.getElementById('bigplay2').addEventListener('click', function () { jump(0); });
+      await wait(CH[3].d);
+    }
+    function reset() { chat.innerHTML = ''; gtext.textContent = 'Ask a question…'; gin.classList.remove('typing'); hot([]); say(''); card.hidden = true; }
+    async function runFrom(k) {
+      var my = ++token; reset();
+      fast = true;
+      try { for (var i = 0; i < k; i++) { await CH[i].run(); } } catch (e) { fast = false; return; }
+      fast = false; elapsed = starts[k]; prog();
+      try {
+        for (i = k; i < CH.length; i++) {
+          curChap = i; markChap(); var before = elapsed;
+          await CH[i].run();
+          if (my !== token) return;
+          elapsed = before + CH[i].d; prog();
+        }
+        paused = true; setPP(); elapsed = TOTAL; prog();
+      } catch (e) { /* stopped by a jump */ }
+    }
+    function setPP() { pp.textContent = paused ? '▶ Play' : '❚❚ Pause'; pp.setAttribute('aria-label', paused ? 'Play' : 'Pause'); }
+    function markChap() { document.querySelectorAll('.chap').forEach(function (c, i) { c.classList.toggle('on', i === curChap); }); }
+    function jump(k) { started = true; paused = false; setPP(); card.hidden = true; runFrom(k); }
+    function play() {
+      if (!started || elapsed >= TOTAL) { jump(0); return; }
+      paused = !paused; setPP();
+    }
+    document.getElementById('chaps').innerHTML = CH.map(function (c, i) { return '<button type="button" class="chap" data-k="' + i + '">' + (i + 1) + '. ' + c.t + '</button>'; }).join('');
+    document.querySelectorAll('.chap').forEach(function (b) { b.addEventListener('click', function () { jump(+b.dataset.k); }); });
+    CH.forEach(function (c, i) { if (i) { var t = document.createElement('div'); t.className = 'tick'; t.style.left = (starts[i] / TOTAL * 100) + '%'; pbar.appendChild(t); } });
+    pbar.addEventListener('click', function (e) {
+      var r = pbar.getBoundingClientRect(), at = (e.clientX - r.left) / r.width * TOTAL, k = 0;
+      starts.forEach(function (s0, i) { if (at >= s0) k = i; }); jump(k);
+    });
+    pp.addEventListener('click', play);
+    document.getElementById('rp').addEventListener('click', function () { jump(0); });
+    document.getElementById('bigplay').addEventListener('click', function () { jump(0); });
+    prog();
+    if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting && !started) { jump(0); io.disconnect(); } }); }, { threshold: 0.6 });
+      io.observe(document.getElementById('player'));
+    }
+    window.__genieJump = jump;
+  })();
+
+  var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(renderAll, 150); });
+  renderAll();
+})();
+</script>
+</body>
+</html>
